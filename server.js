@@ -317,6 +317,21 @@ export async function applyPair(input = {}) {
   const folderId = folderIdFor(localPath, remotePath)
   const createMissing = input.createMissing !== false
 
+  if (sshHost === '') {
+    const error = { code: 'no-host', message: 'Enter the remote SSH host first.' }
+    return {
+      ok: false,
+      stage: 'preflight',
+      folderId,
+      label,
+      localPath,
+      remotePath,
+      local: { ok: false, skipped: true, error },
+      remote: { ok: false, reachable: false, error },
+      error,
+    }
+  }
+
   const local = await probeLocal()
   if (!local.ok) {
     return {

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Syncthing Folder Pair",
+    "description": "Pair one folder on this Mac with one folder on a remote Mac over SSH and share it two-way through Syncthing."
+  }
+}

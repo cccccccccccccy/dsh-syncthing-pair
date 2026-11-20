@@ -1,0 +1,60 @@
+{
+  "name": "dsh-syncthing-pair",
+  "version": "1.0.0",
+  "description": "Pair one folder on this Mac with one folder on a remote Mac over SSH and share it two-way through Syncthing.",
+  "type": "module",
+  "license": "MIT",
+  "author": "cccccccccccccy",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cccccccccccccy/dsh-syncthing-pair.git"
+  },
+  "homepage": "https://github.com/cccccccccccccy/dsh-syncthing-pair#readme",
+  "bugs": {
+    "url": "https://github.com/cccccccccccccy/dsh-syncthing-pair/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "syncthing",
+    "sync",
+    "macos",
+    "ssh"
+  ],
+  "engines": {
+    "dsh": ">=0.2.1-rc.2"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "server.js",
+    "syncthing_pair.py",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "assets/*",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-locale",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}

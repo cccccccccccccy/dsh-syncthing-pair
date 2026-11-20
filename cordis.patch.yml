@@ -1,0 +1,3 @@
+- insert:
+    - id: syncthing-pair
+      name: dsh-syncthing-pair

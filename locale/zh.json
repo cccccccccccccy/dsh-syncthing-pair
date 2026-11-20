@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Syncthing 文件夹配对",
+    "description": "输入本机与远端 Mac 上的两个目录，通过 SSH 一键创建并共享 Syncthing 双向同步文件夹。"
+  }
+}

@@ -39,7 +39,7 @@ dsh plugin --profile web add github:cccccccccccccy/dsh-syncthing-pair
 或使用预构建的 release tarball：
 
 ```sh
-dsh plugin --profile web add https://github.com/cccccccccccccy/dsh-syncthing-pair/releases/download/v1.0.0/dsh-syncthing-pair-1.0.0.tgz
+dsh plugin --profile web add https://github.com/cccccccccccccy/dsh-syncthing-pair/releases/download/v1.0.1/dsh-syncthing-pair-1.0.1.tgz
 ```
 
 按宿主提示重启 `dsh web`，刷新页面。左侧栏会出现 **Syncthing 同步**。
@@ -78,7 +78,7 @@ helper 根据两个路径计算稳定的文件夹 ID（`st-<本机目录名>-<ha
 ## 安全
 
 - 不删除文件、不修改 `config.xml`、不上报任何数据。
-- HTTP 端点只接受同源请求；没有 `Origin` 的请求仅接受 loopback。
+- 每条 HTTP 路由先经过 DSH 的 connection 服务（`ctx.connection.requestRejection`）：Host/Origin 检查与浏览器会话认证都通过才继续，因此 Syncthing API 只能被本 DSH 主机上已认证的页面调用；其余请求在读请求体、碰 Syncthing 之前就返回 401/403。
 - SSH 使用你已有的 key 和 host 配置；插件不存储凭据。
 - 已存在但路径不同的文件夹 ID 会被拒绝，不会被覆盖。
 
@@ -101,6 +101,11 @@ npm pack --dry-run
 ```
 
 Host 与浏览器端都是纯 JavaScript，没有构建步骤；除 `ssh` 和 `python3` 之外没有运行时依赖。
+
+## 更新记录
+
+- **1.0.1** — 路由访问改由 DSH 的 connection 服务（`ctx.connection.requestRejection`）把关：未认证或跨主机的请求在做任何事之前直接返回 401/403。
+- **1.0.0** — 首个版本。
 
 ## 许可证
 

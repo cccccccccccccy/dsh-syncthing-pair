@@ -1,6 +1,6 @@
 {
   "name": "dsh-syncthing-pair",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Pair one folder on this Mac with one folder on a remote Mac over SSH and share it two-way through Syncthing.",
   "type": "module",
   "license": "MIT",
@@ -56,5 +56,8 @@
         "@deepseek-ai/dsh-client-ui-sidebar"
       ]
     }
+  },
+  "scripts": {
+    "test": "node --test test/route-access.test.mjs"
   }
 }

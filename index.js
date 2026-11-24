@@ -13,7 +13,7 @@ import {
   toError,
 } from './server.js'
 
-export const inject = ['webServer', 'tools']
+export const inject = ['webServer', 'tools', 'connection']
 
 const ROUTE = '/syncthing-pair/api'
 
@@ -64,37 +64,26 @@ function readBody(request, limit = 128 * 1024) {
   })
 }
 
-function expectedOrigin(ctx) {
-  try {
-    return ctx.webServer.getOrigin()
-  } catch {
-    return 'http://127.0.0.1:3080'
-  }
-}
-
-function sameOrigin(origin, expected) {
-  if (origin === expected) return true
-  try {
-    const left = new URL(origin)
-    const right = new URL(expected)
-    const loopback = new Set(['127.0.0.1', 'localhost', '::1'])
-    return left.protocol === right.protocol
-      && left.port === right.port
-      && loopback.has(left.hostname)
-      && loopback.has(right.hostname)
-  } catch {
-    return false
-  }
-}
-
-function isTrusted(ctx, request) {
-  const origin = request.headers.origin
-  if (typeof origin === 'string' && origin !== '') {
-    return sameOrigin(origin, expectedOrigin(ctx))
-  }
-  // A missing Origin is only acceptable from this machine (curl, tests).
-  const remote = request.socket?.remoteAddress ?? ''
-  return remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1'
+/**
+ * Apply DSH's own access check to this route: the composition's `connection`
+ * service runs its Host/Origin fence and browser authentication, so a request
+ * reaches the Syncthing API only when it comes from this listener with this
+ * page's login-token cookie. Returns true when it has already been rejected.
+ */
+function rejectUntrusted(ctx, request, response) {
+  const rejection = ctx.connection.requestRejection(request)
+  if (rejection === undefined) return false
+  const unauthorized = rejection === 401
+  sendJson(response, rejection, {
+    ok: false,
+    error: {
+      code: unauthorized ? 'unauthorized' : 'forbidden',
+      message: unauthorized
+        ? 'Not authenticated to this DSH host. Reload the page from the dsh web URL and try again.'
+        : 'This request is not from the DSH host.',
+    },
+  })
+  return true
 }
 
 async function dispatch(ctx, name, body) {
@@ -116,10 +105,7 @@ function registerRoute(ctx) {
     path: ROUTE,
     handler: async (request, response) => {
       try {
-        if (!isTrusted(ctx, request)) {
-          sendJson(response, 403, { ok: false, error: { code: 'forbidden', message: 'Forbidden.' } })
-          return
-        }
+        if (rejectUntrusted(ctx, request, response)) return
         if (request.method !== 'POST') {
           sendJson(response, 405, { ok: false, error: { code: 'method', message: 'POST only.' } })
           return

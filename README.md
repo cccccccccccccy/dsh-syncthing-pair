@@ -39,7 +39,7 @@ dsh plugin --profile web add github:cccccccccccccy/dsh-syncthing-pair
 Or from the prebuilt release tarball:
 
 ```sh
-dsh plugin --profile web add https://github.com/cccccccccccccy/dsh-syncthing-pair/releases/download/v1.0.0/dsh-syncthing-pair-1.0.0.tgz
+dsh plugin --profile web add https://github.com/cccccccccccccy/dsh-syncthing-pair/releases/download/v1.0.1/dsh-syncthing-pair-1.0.1.tgz
 ```
 
 Restart `dsh web` if your host requires it, then refresh the page. The plugin adds a **Syncthing 同步** entry to the left sidebar.
@@ -78,7 +78,7 @@ The helper computes a deterministic folder ID from the two paths (`st-<local-fol
 ## Safety
 
 - No file deletion, no `config.xml` edits, no telemetry.
-- The HTTP endpoint is same-origin only; requests without an `Origin` header are accepted only from loopback.
+- Every HTTP route first asks DSH's connection service (`ctx.connection.requestRejection`): its Host/Origin fence and browser-session authentication must both pass, so the Syncthing API is reachable only from an authenticated page of this DSH host. Anything else is refused with 401/403 before the plugin reads a body or touches Syncthing.
 - SSH uses your existing key and host configuration; the plugin does not store credentials.
 - A folder whose ID already exists with a different path is rejected rather than overwritten.
 
@@ -101,6 +101,11 @@ npm pack --dry-run
 ```
 
 The plugin is plain JavaScript on the host and browser sides; there is no build step. The Python helper is the only runtime dependency beyond `ssh` and `python3`.
+
+## Changelog
+
+- **1.0.1** — Route access now goes through DSH's connection service (`ctx.connection.requestRejection`), so an unauthenticated or cross-host request is refused with 401/403 before any work.
+- **1.0.0** — First release.
 
 ## License
 
